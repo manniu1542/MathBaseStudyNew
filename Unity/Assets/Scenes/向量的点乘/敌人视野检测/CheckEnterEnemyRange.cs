@@ -16,7 +16,7 @@ public class CheckEnterEnemyRange : MonoBehaviour
         enemyForward.y = 0;
 
         //简短判断 人在敌人的 正方向
-        float dot = dotV(enemy2self, enemyForward);
+        float dot = MathSHelper.DotV3(enemy2self, enemyForward);
         if (dot < 0)
         {
             Debug.Log("人在敌人的背面");
@@ -47,10 +47,7 @@ public class CheckEnterEnemyRange : MonoBehaviour
         return true;
     }
 
-    float dotV(Vector3 one, Vector3 two)
-    {
-        return one.x * two.x + one.y * two.y + one.z * two.z;
-    }
+
 
     // Update is called once per frame
     void Update()
