@@ -46,10 +46,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\FreeCameraLogic.cs" />
+    <Compile Include="Assets\Scenes\向量的点乘\碰撞反弹方向计算\CollisionReboundDirection.cs" />
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\DemoFree.cs" />
     <Compile Include="Assets\Scenes\模拟2d射箭\Moni2dSheJian.cs" />
     <Compile Include="Assets\Scenes\向量的点乘\敌人视野检测\CheckEnterEnemyRange.cs" />
     <Compile Include="Assets\Scenes\向量的点乘\敌人视野检测\ViewRangeGizmo.cs" />
+    <Compile Include="Assets\Scenes\向量的点乘\投影计算\ProjectionHandle.cs" />
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\SimpleSampleCharacterControl.cs" />
     <Compile Include="Assets\Scenes\MathSHelper.cs" />
     <Compile Include="Assets\Scenes\向量的点乘\计算光照强度\DotProductLighting.cs" />
