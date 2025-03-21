@@ -50,6 +50,7 @@
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\DemoFree.cs" />
     <Compile Include="Assets\Scenes\模拟2d射箭\Moni2dSheJian.cs" />
     <Compile Include="Assets\Scenes\向量的点乘\敌人视野检测\CheckEnterEnemyRange.cs" />
+    <Compile Include="Assets\Scenes\向量的点乘\判断物体在相机视野范围内\PointInCamara.cs" />
     <Compile Include="Assets\Scenes\向量的点乘\敌人视野检测\ViewRangeGizmo.cs" />
     <Compile Include="Assets\Scenes\向量的点乘\投影计算\ProjectionHandle.cs" />
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\SimpleSampleCharacterControl.cs" />
@@ -57,6 +58,8 @@
     <Compile Include="Assets\Scenes\向量的点乘\计算光照强度\DotProductLighting.cs" />
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\AccessoryWearLogic.cs" />
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\AccessoryLogic.cs" />
+    <Compile Include="Assets\Scenes\向量的点乘\人物之间的面对面检测\FaceToFace.cs" />
+    <Compile Include="Assets\Scenes\Tmp\TmpTest.cs" />
     <None Include="Assets\Res\Supercyan Character Pack Free Sample\Shaders\Legacy\CelShader.shader" />
     <None Include="Assets\Res\Supercyan Character Pack Free Sample\Shaders\SupercyanShader.shader" />
     <None Include="Assets\Res\Supercyan Character Pack Free Sample\Shaders\SupercyanShaderLighting.cginc" />

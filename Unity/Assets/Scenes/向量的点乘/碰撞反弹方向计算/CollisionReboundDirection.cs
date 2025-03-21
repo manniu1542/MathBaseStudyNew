@@ -21,6 +21,7 @@ public class CollisionReboundDirection : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+     
     }
 
     public void ThrowBall()
@@ -60,7 +61,7 @@ public class CollisionReboundDirection : MonoBehaviour
         if (name == "碰撞的板")
         {
             //因为 2个以 N向量的对称向量（A,B）  符合A+B = 2N,可以 画向量平行四边形的图 ，这个N向量的模长还得符合 A向量在N向量方向的投影模长。
-
+            //注意 要锁定 小球的旋转避免， 旋转造成的 坐标 跟预期不同， 所以要锁定小球的旋转
             //求B的单位向量,
 
             //A =  rb.velocity   ,N = -collision.collider.gameObject.transform.forward  *A在N上的投影模长
@@ -69,11 +70,12 @@ public class CollisionReboundDirection : MonoBehaviour
             float A2N_Project = MathSHelper.DotV3(A, N_noraml) / N_noraml.magnitude;
             Vector3 N = N_noraml * A2N_Project;
             Vector3 B = 2 * N - A;
-
+          
             Debug.Log($"Plane 的 forward: {collision.collider.gameObject.transform.forward}");
             Debug.Log($"实际碰撞点法线: {collision.contacts[0].normal}");
 
             Debug.Log("自己计算的碰撞完后的速度方向：" + B.normalized);
+            Debug.Log("自己的反射速度方向：" +MathSHelper.ReflectV3(A,N_noraml));
         }
 
 
