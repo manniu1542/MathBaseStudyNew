@@ -4,21 +4,28 @@ using UnityEngine;
 
 public class TmpTest : MonoBehaviour
 {
-    public Vector3 needNv3;
+    public Transform tfLocal;
+
+    public Transform tfW2LParent;
+    public Transform tfWolrd;
 
     // Start is called before the first frame update
     void Start()
     {
-        Vector3 v3 = MathSHelper.Cross(Vector3.up, Vector3.right);
-        Debug.Log(v3);
-        Debug.Log(Vector3.Cross(Vector3.up, Vector3.right));
-        // z y 正的。x是负的。
-        // z y负的。x是正的。
+        Vector3 local = MathSHelper.WorldPointTolocalPoint(tfW2LParent, tfWolrd.position);
+        Debug.Log("世界转本地坐标：" + local);
+        Vector3 localUnity = tfW2LParent.InverseTransformPoint(tfWolrd.position);
+        Debug.Log("世界转本地坐标（Unity内置）：" + localUnity);
+
+
+        Vector3 world = MathSHelper.LocalPointToWorldPoint(tfLocal, tfLocal.localPosition);
+        Debug.Log("本地转世界坐标：" + world);
+        Vector3 worldUnity = tfLocal.TransformPoint(Vector3.zero);
+        Debug.Log("本地转世界坐标（Unity内置）：" + worldUnity);
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(MathSHelper.GetNoraml(needNv3));
     }
 }
