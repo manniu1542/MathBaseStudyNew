@@ -55,8 +55,5 @@ public class CheckEnterEnemyRange : MonoBehaviour
         scrVrg.isEnter = CheckEnterEnmey();
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawLine(transform.position, scrVrg.transform.position);
-    }
+
 }
