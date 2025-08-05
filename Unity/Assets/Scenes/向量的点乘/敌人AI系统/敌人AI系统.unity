@@ -1545,6 +1545,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baf42198dd3d1494c8da759c6a13c8e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  target: {fileID: 166609422}
+  attDistance: 10
+  attAngle: 30
+  moveSpeed: 10
+  angleSpeed: 10
 --- !u!137 &6603398401514478592
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0
