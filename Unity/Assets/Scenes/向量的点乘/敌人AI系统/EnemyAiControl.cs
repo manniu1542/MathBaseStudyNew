@@ -22,13 +22,15 @@ public class EnemyAiControl : MonoBehaviour
         Vector3 v3 = target.position - transform.position;
         //当前响亮的模长
         float magnitude = Mathf.Sqrt(v3.x * v3.x + v3.y * v3.y + v3.z * v3.z);
-        if (magnitude < attDistance)
-        {
+        Debug.Log($"距离magnitude:{magnitude}");
+        if (magnitude > attDistance)
             return false;
-        }
+     
+
 
         float cosθ = MathSHelper.DotV3(transform.forward, v3) / magnitude;
         float angle = Mathf.Acos(cosθ) * Mathf.Rad2Deg;
+        Debug.Log($"夹角angle:{angle}");
         if (angle > attAngle)
             return false;
 
@@ -48,7 +50,7 @@ public class EnemyAiControl : MonoBehaviour
         if (angle > 0.01f && axis != Vector3.zero)
         {
             Vector3 tmp = transform.rotation.eulerAngles;
-            angle =    Mathf.Min(Time.deltaTime * angleSpeed, angle);
+            angle = Mathf.Min(Time.deltaTime * angleSpeed, angle);
             tmp += axis.normalized * angle;
             transform.rotation = Quaternion.Euler(tmp);
         }
@@ -56,6 +58,7 @@ public class EnemyAiControl : MonoBehaviour
 
     void MoveToTarget()
     {
+        
         Vector3 v3 = target.position - transform.position;
         transform.position += v3.normalized * Time.deltaTime * moveSpeed;
     }
