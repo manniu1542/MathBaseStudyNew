@@ -61,6 +61,7 @@
     <Compile Include="Assets\Scenes\向量的点乘\计算光照强度\DotProductLighting.cs" />
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\AccessoryWearLogic.cs" />
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\AccessoryLogic.cs" />
+    <Compile Include="Assets\Scenes\四元数\UseQuaternion.cs" />
     <Compile Include="Assets\Scenes\向量的点乘\人物之间的面对面检测\FaceToFace.cs" />
     <Compile Include="Assets\Scenes\矩阵的基本运算\SMatrixHelper.cs" />
     <Compile Include="Assets\Scenes\Tmp\TmpTest.cs" />
