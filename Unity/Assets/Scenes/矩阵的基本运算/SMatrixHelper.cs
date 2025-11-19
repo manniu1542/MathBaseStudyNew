@@ -51,7 +51,7 @@ public class SMatrix
     }
 }
 
-public class SMatrixHelper
+public static class SMatrixHelper
 {
     public static SMatrix MatrixAdd(SMatrix matrix1, SMatrix matrix2)
     {
@@ -97,7 +97,7 @@ public class SMatrixHelper
         return result;
     }
 
-    public static SMatrix MatrixMul(SMatrix matrix1, float value)
+    public static SMatrix MatrixMul(this SMatrix matrix1, float value)
     {
         SMatrix result = new SMatrix(matrix1.row, matrix1.col);
         for (int i = 0; i < result.row; i++)
@@ -134,13 +134,168 @@ public class SMatrixHelper
     {
         SMatrix v3Matrix1 = new SMatrix(new float[,] { { v31.x, v31.y, v31.z } });
         //斜对称矩阵
-        SMatrix v3Matrix2 = new SMatrix(new float[,]
-        {
-            { 0, -v32.z, v32.y },
-            { v32.z, 0, -v32.x },
-            { -v32.y, v32.x, 0 }
-        });
+        SMatrix v3Matrix2 = v32.ToSkewSymmetric();
         var result = MatrixMul(v3Matrix1, v3Matrix2);
         return new Vector3(result[0, 0], result[0, 1], result[0, 2]);
+    }
+
+    /// <summary>
+    /// 向量转为斜对称矩阵为了叉乘做准备 （右手定则的叉乘）
+    /// </summary>
+    /// <param name="v3"></param>
+    /// <param name="matrix"></param>
+    /// <returns></returns>
+    public static SMatrix ToSkewSymmetric(this Vector3 v3)
+    {
+        return new SMatrix(new float[,]
+        {
+            { 0, -v3.z, v3.y },
+            { v3.z, 0, -v3.x },
+            { -v3.y, v3.x, 0 }
+        });
+    }
+
+    /// <summary>
+    /// 获取变换的 相对父级的 本地坐标系 构成的矩阵 (包含，平移。旋转，缩放，信息)
+    /// </summary>
+    public static SMatrix GetLocalRelativelyMatrix(this Transform tf)
+    {
+        // *** 1. 使用局部属性 ***
+        Vector3 localScale = tf.localScale; // 局部缩放
+        Vector3 localPosition = tf.localPosition; // 局部平移
+
+        // *** 2. 获取局部方向向量 ***
+        // 假设 Transform.localRotation 可以用来计算局部方向
+        Quaternion localRot = tf.localRotation;
+
+        // 标准基向量
+        Vector3 localRight = localRot * Vector3.right; // 局部X轴
+        Vector3 localUp = localRot * Vector3.up; // 局部Y轴
+        Vector3 localForward = localRot * Vector3.forward; // 局部Z轴
+
+        // 3. 构造局部变换矩阵 (行向量约定：平移在最后一行)
+        // 每一行是 [r*sx, u*sy, f*sz] 在父级坐标系中的分量。
+        // 因为 localRight/Up/Forward 已经是相对于父级定向的，我们直接使用它们的分量。
+        return new SMatrix(new float[,]
+        {
+            // R * S 部分 (缩放后的局部基轴)
+            { localRight.x * localScale.x, localRight.y * localScale.x, localRight.z * localScale.x, 0 },
+            { localUp.x * localScale.y, localUp.y * localScale.y, localUp.z * localScale.y, 0 },
+            { localForward.x * localScale.z, localForward.y * localScale.z, localForward.z * localScale.z, 0 },
+
+            // T 部分 (局部平移)
+            { localPosition.x, localPosition.y, localPosition.z, 1 }
+        });
+    }
+
+    /// <summary>
+    /// 本地坐标转换到世界坐标
+    /// </summary>
+    /// <param name="wp"></param>
+    /// <param name="localTF"></param>
+    /// <returns></returns>
+    public static Vector3 LocalPointToWorldPoint(Vector3 lp, Transform localTF)
+    {
+        if (localTF == null)
+            return lp;
+        List<SMatrix> list = new List<SMatrix>();
+        list.Add(localTF.GetLocalRelativelyMatrix());
+
+        var parent = localTF.parent;
+        while (parent != null)
+        {
+            list.Add(parent.GetLocalRelativelyMatrix());
+            parent = parent.parent;
+        }
+
+        SMatrix v = new SMatrix(new float[,]
+        {
+            { lp.x, lp.y, lp.z, 1 }
+        });
+        SMatrix m = list[0];
+        for (int i = 1; i < list.Count - 1; i++)
+        {
+            m = MatrixMul(m, list[i + 1]);
+        }
+
+        v = MatrixMul(v, m);
+        return new Vector3(v[0, 0], v[0, 1], v[0, 2]);
+    }
+
+    /// <summary>
+    /// 获取本地坐标系 构成的矩阵 (包含，平移。旋转，缩放，信息)
+    /// </summary>
+    private static SMatrix GetWorldMatrix(this Transform tf, Vector3 pos)
+    {
+        //直立坐标系位置
+        var upLp = pos - tf.localPosition;
+        SMatrix v = new SMatrix(new float[,]
+        {
+            { upLp.x, upLp.y, upLp.z, 1 }
+        });
+        Vector3 scale = tf.localScale; // 世界坐标系中的缩放
+        Debug.Log("缩放：" + scale);
+        return new SMatrix(new float[,]
+        {
+            { tf.right.x / scale.x, tf.up.x / scale.y, tf.forward.x / scale.z, 0 },
+            { tf.right.y / scale.x, tf.up.y / scale.y, tf.forward.y / scale.z, 0 },
+            { tf.right.z / scale.x, tf.up.z / scale.y, tf.forward.z / scale.z, 0 },
+            { 0, 0, 0, 1 }
+        });
+    }
+
+    /// <summary>
+    /// 世界坐标转换到本地坐标
+    /// </summary>
+    /// <param name="lp"></param>
+    /// <param name="worldTF"></param>
+    /// <returns></returns>
+    public static Vector3 WorldPointToLocalPoint(Vector3 wp, Transform localTF)
+    {
+        SMatrix v = new SMatrix(new float[,]
+        {
+            { wp.x, wp.y, wp.z, 1 }
+        });
+        List<Transform> list = new List<Transform>();
+        list.Add(localTF);
+
+        var parent = localTF.parent;
+        while (parent != null)
+        {
+            list.Add(localTF);
+            parent = parent.parent;
+        }
+
+        SMatrix result = null;
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            var m = list[i].GetWorldMatrix(i == list.Count - 1 ? wp : Vector3.zero);
+            result = MatrixMul(v, m);
+        }
+
+
+        return new Vector3(result[0, 0], result[0, 1], result[0, 2]);
+    }
+
+
+    /// <summary>
+    /// 矩阵的转置
+    /// </summary>
+    /// <param name="m"></param>
+    /// <returns></returns>
+    public static SMatrix TransposeSelf(this SMatrix m)
+    {
+        float tmp;
+        for (int i = 0; i < m.row; i++)
+        {
+            for (int j = i + 1; j < m.col; j++)
+            {
+                tmp = m[i, j];
+                m[i, j] = m[j, i];
+                m[j, i] = tmp;
+            }
+        }
+
+        return m;
     }
 }

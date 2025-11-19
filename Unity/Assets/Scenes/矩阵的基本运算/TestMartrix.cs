@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class TestMartrix : MonoBehaviour
 {
@@ -8,12 +10,19 @@ public class TestMartrix : MonoBehaviour
 
     private SMatrix matrix2;
 
+    public Transform target;
+
+    public Transform worldPos;
+
+    public Transform LocalPos;
+
     // Start is called before the first frame update
     void Start()
     {
+    
         matrix1 = new SMatrix(new float[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } });
         matrix2 = new SMatrix(new float[,] { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } });
-        var result1 = SMatrixHelper.MatrixMul(matrix2, 2);
+        var result1 = matrix2.MatrixMul(2);
         var result = SMatrixHelper.MatrixMul(matrix1, result1);
 
         Vector3 v3 = new Vector3(1, 2, 3);
@@ -23,6 +32,16 @@ public class TestMartrix : MonoBehaviour
         Vector3 v32 = SMatrixHelper.V3CrossProduct(Vector3.right, Vector3.forward);
         Debug.Log(v32.ToString());
         Discrete();
+    }
+
+
+
+    public void Update()
+    {
+        var v = SMatrixHelper.WorldPointToLocalPoint(worldPos.position, target);
+        Debug.Log("世界点=》本地 矩阵转换：" + v);
+        var v2 = SMatrixHelper.LocalPointToWorldPoint(LocalPos.localPosition, LocalPos.parent);
+        Debug.Log("本地点=》世界 矩阵转换：" + v2);
     }
 
     /// <summary>
