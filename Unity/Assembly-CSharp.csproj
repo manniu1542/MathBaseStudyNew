@@ -48,6 +48,7 @@
     <Compile Include="Assets\Scenes\矩阵的基本运算\MatrixCubeController.cs" />
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\FreeCameraLogic.cs" />
     <Compile Include="Assets\Scenes\向量的点乘\碰撞反弹方向计算\CollisionReboundDirection.cs" />
+    <Compile Include="Assets\Scenes\向量的点乘\敌人AI系统\EnemyAiControl.cs" />
     <Compile Include="Assets\Res\Supercyan Character Pack Free Sample\Scripts\DemoFree.cs" />
     <Compile Include="Assets\Scenes\矩阵的基本运算\TestMartrix.cs" />
     <Compile Include="Assets\Scenes\模拟2d射箭\Moni2dSheJian.cs" />
