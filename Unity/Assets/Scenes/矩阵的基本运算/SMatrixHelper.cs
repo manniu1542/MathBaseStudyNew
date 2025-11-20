@@ -189,7 +189,7 @@ public static class SMatrixHelper
     }
 
     /// <summary>
-    /// 本地坐标转换到世界坐标
+    /// 本地坐标转换到世界坐标，TODO:TRS的逆。不知道为什么 算出的本地转世界的构建的矩阵不对
     /// </summary>
     /// <param name="wp"></param>
     /// <param name="localTF"></param>
@@ -213,9 +213,9 @@ public static class SMatrixHelper
             { lp.x, lp.y, lp.z, 1 }
         });
         SMatrix m = list[0];
-        for (int i = 1; i < list.Count - 1; i++)
+        for (int i = 1; i < list.Count; i++)
         {
-            m = MatrixMul(m, list[i + 1]);
+            m = MatrixMul(m, list[i]);
         }
 
         v = MatrixMul(v, m);
@@ -225,23 +225,50 @@ public static class SMatrixHelper
     /// <summary>
     /// 获取本地坐标系 构成的矩阵 (包含，平移。旋转，缩放，信息)
     /// </summary>
-    private static SMatrix GetWorldMatrix(this Transform tf, Vector3 pos)
+    /// <summary>
+    /// 获取将世界坐标直接转换为本地坐标的单个矩阵 M_WorldToLocal = M_World^(-1)
+    /// </summary>
+    private static SMatrix GetWorldToLocalMatrix(this Transform tf)
     {
-        //直立坐标系位置
-        var upLp = pos - tf.localPosition;
-        SMatrix v = new SMatrix(new float[,]
+        // S^-1 部分 (缩放的逆)
+        Vector3 worldLossyScale = tf.lossyScale;
+        float sxInv = 1.0f / worldLossyScale.x;
+        float syInv = 1.0f / worldLossyScale.y;
+        float szInv = 1.0f / worldLossyScale.z;
+        SMatrix M_S_inv = new SMatrix(new float[,]
         {
-            { upLp.x, upLp.y, upLp.z, 1 }
-        });
-        Vector3 scale = tf.localScale; // 世界坐标系中的缩放
-        Debug.Log("缩放：" + scale);
-        return new SMatrix(new float[,]
-        {
-            { tf.right.x / scale.x, tf.up.x / scale.y, tf.forward.x / scale.z, 0 },
-            { tf.right.y / scale.x, tf.up.y / scale.y, tf.forward.y / scale.z, 0 },
-            { tf.right.z / scale.x, tf.up.z / scale.y, tf.forward.z / scale.z, 0 },
+            { sxInv, 0, 0, 0 },
+            { 0, syInv, 0, 0 },
+            { 0, 0, szInv, 0 },
             { 0, 0, 0, 1 }
         });
+        //TODO： 正交矩阵（旋转矩阵）他的逆矩阵==他的转置
+        // 解决方法：使用 tf.rotation 来获取纯净的旋转轴
+        Quaternion worldRotation = tf.rotation;
+        Vector3 right = worldRotation * Vector3.right;
+        Vector3 up = worldRotation * Vector3.up;
+        Vector3 forward = worldRotation * Vector3.forward;
+        
+        SMatrix M_R_inv = new SMatrix(new float[,]
+        {
+            // R * S^-1 (转置的轴向量)
+            { right.x, up.x, forward.x, 0 },
+            { right.y, up.y, forward.y, 0 },
+            { right.z, up.z, forward.z, 0 },
+            { 0, 0, 0, 1 }
+        });
+      
+        // 1. 获取tf的世界坐标和世界旋转 (Unity Transform自带的属性)
+        Vector3 worldPosition = tf.position; // 世界平移 T
+        SMatrix M_T_inv = new SMatrix(new float[,]
+        {
+            { 1, 0, 0, 0 },
+            { 0, 1, 0, 0 },
+            { 0, 0, 1, 0 },
+            { -worldPosition.x, -worldPosition.y, -worldPosition.z, 1 } // T^-1 的平移分量
+        });
+        var M_RS_inv = MatrixMul(M_R_inv, M_S_inv);
+        return MatrixMul(M_RS_inv, M_T_inv);
     }
 
     /// <summary>
@@ -256,25 +283,10 @@ public static class SMatrixHelper
         {
             { wp.x, wp.y, wp.z, 1 }
         });
-        List<Transform> list = new List<Transform>();
-        list.Add(localTF);
 
-        var parent = localTF.parent;
-        while (parent != null)
-        {
-            list.Add(localTF);
-            parent = parent.parent;
-        }
-
-        SMatrix result = null;
-        for (int i = list.Count - 1; i > 0; i--)
-        {
-            var m = list[i].GetWorldMatrix(i == list.Count - 1 ? wp : Vector3.zero);
-            result = MatrixMul(v, m);
-        }
-
-
-        return new Vector3(result[0, 0], result[0, 1], result[0, 2]);
+        var m = localTF.GetWorldToLocalMatrix();
+        v = MatrixMul(v, m);
+        return new Vector3(v[0, 0], v[0, 1], v[0, 2]);
     }
 
 
